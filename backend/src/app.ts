@@ -20,7 +20,7 @@ connectDB();
 // CORS configuration for frontends (e.g. React / Vite)
 const allowedOrigins = process.env.CLIENT_URL
     ? process.env.CLIENT_URL.split(",").map((s) => s.trim())
-    : ["http://localhost:5173", "http://localhost:3000", "http://localhost:3001"];
+    : ["http://localhost:5173", "https://chat-application-psi-five.vercel.app","http://localhost:3000", "http://localhost:3001"];
 
 app.use(
     cors({
