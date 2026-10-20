@@ -41,11 +41,18 @@ export function isUserOnline(userId: string): boolean {
 }
 
 export function initSocket(server: HttpServer): Server {
+    const allowedOrigins = process.env.CLIENT_URL
+        ? process.env.CLIENT_URL.split(",").map((s) => s.trim())
+        : ["http://localhost:5173", "http://localhost:3000", "http://localhost:3001"];
+
     io = new Server(server, {
         cors: {
-            origin: process.env.CLIENT_URL
-                ? process.env.CLIENT_URL.split(",").map((s) => s.trim())
-                : ["http://localhost:5173", "http://localhost:3000"],
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin)) {
+                    return callback(null, true);
+                }
+                return callback(null, true); // Dev-friendly fallback
+            },
             credentials: true,
             methods: ["GET", "POST"],
         },
