@@ -55,10 +55,10 @@ export default function AuthModal() {
             <span className="material-symbols-outlined text-[26px]">chat</span>
           </div>
           <h2 className="text-2xl font-bold text-[#f8fafc] tracking-tight">
-            Pulse Messenger
+            OpenTalk
           </h2>
           <p className="text-sm text-[#94a3b8] mt-1">
-            Real-time chat with presence & instant media
+            Real-time Chat Application 
           </p>
         </div>
 
@@ -198,7 +198,7 @@ export default function AuthModal() {
         </form>
 
         <div className="mt-6 text-center text-[11px] text-[#64748b]">
-          Pulse Engine • End-to-End Real-Time Socket.IO
+          OpenTalk is a real-time chat application built with Next.js, React, and Socket.IO. It allows users to communicate instantly through private messages.
         </div>
       </div>
     </div>

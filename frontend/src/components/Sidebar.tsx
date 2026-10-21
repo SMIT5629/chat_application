@@ -308,10 +308,6 @@ export default function Sidebar({ onOpenProfile, onOpenNewChat }: SidebarProps) 
             <span>Settings</span>
           </button>
         </div>
-        <div className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="w-2 h-2 rounded-full bg-[#10b981]" />
-          <span>v2.0 Next+TS</span>
-        </div>
       </div>
     </aside>
   );

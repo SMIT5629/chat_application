@@ -351,7 +351,7 @@ export default function ChatArea({ onOpenNewChat }: { onOpenNewChat: () => void 
                           className="max-h-72 w-full object-cover"
                         />
                         <div className="p-2 bg-[#181c24] flex items-center justify-between border-t border-white/5">
-                          <span className="text-[11px] text-[#908fa0]">Image Attachment</span>
+                          <span className="text-[11px] text-[#908fa0]">Image</span>
                           <a
                             href={msg.mediaUrl}
                             target="_blank"
@@ -441,7 +441,7 @@ export default function ChatArea({ onOpenNewChat }: { onOpenNewChat: () => void 
               value={inputText}
               onChange={handleTextChange}
               onKeyDown={handleKeyDown}
-              placeholder={`Type a message to ${otherUser?.name || "chat"}... (Enter to send)`}
+              placeholder={`Type a message to ${otherUser?.name || "chat"}... `}
               rows={2}
               className="w-full bg-transparent text-[#dfe2ee] placeholder:text-[#908fa0] text-sm resize-none border-none focus:outline-none p-0 leading-relaxed"
             />
@@ -487,7 +487,7 @@ export default function ChatArea({ onOpenNewChat }: { onOpenNewChat: () => void 
             <div className="flex items-center gap-3">
               <span className="hidden md:inline-flex items-center gap-1 text-[11px] text-[#908fa0] font-mono">
                 <kbd className="px-1.5 py-0.5 rounded bg-[#262a33] border border-white/5 text-[#dfe2ee]">
-                  Return ↵
+                  Enter ↵
                 </kbd>
                 <span>to send</span>
               </span>

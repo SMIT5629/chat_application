@@ -23,8 +23,13 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pulse Messenger — Real-Time Chat & Collaboration",
-  description: "Next.js & TypeScript real-time chat application with Stitch Dark Mode UI",
+  title: "OpenTalk - Real-time Chat Application",
+  description: "OpenTalk is a real-time chat application built with Next.js, React, and Socket.IO. It allows users to communicate instantly through private messages.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
