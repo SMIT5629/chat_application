@@ -25,115 +25,176 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("username", username);
-      if (file) {
-        formData.append("profilePicture", file);
-      }
-
+      if (file) formData.append("profilePicture", file);
       await updateProfile(formData);
       onClose();
     } catch (err: any) {
-      setError(err.message || "Failed to update profile");
+      setError(err.message || "PROFILE_UPDATE_FAILED");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-      <div className="relative w-full max-w-md rounded-2xl bg-[#0f172a] border border-white/10 p-6 shadow-2xl">
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-          <h3 className="text-lg font-bold text-white">Edit Profile</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg bg-[#FBFAF4] border border-[#E5E2DA] shadow-none">
+
+        {/* Modal Top Bar */}
+        <div className="h-12 border-b border-[#E5E2DA] px-5 flex items-center justify-between bg-white">
+          <div className="flex items-center gap-3">
+            <span className="font-serif text-[18px] text-[#1B1C19]">Edit Profile</span>
+          </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-white hover:bg-white/5 transition-colors"
+            className="text-[#737373] hover:text-[#1B1C19] p-1 transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
+        {/* Error notification */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px]">error</span>
-            <span>{error}</span>
+          <div className="border-b border-[#E64B35] bg-white px-5 py-2.5 flex items-center gap-2">
+            
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Avatar Preview & Upload */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Profile"
-                  className="w-20 h-20 rounded-full object-cover ring-2 ring-[#6366f1]"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-[#1e293b] flex items-center justify-center text-white text-2xl font-bold ring-2 ring-white/10">
-                  {name.charAt(0).toUpperCase() || "U"}
-                </div>
-              )}
-              <div className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
-                <span className="material-symbols-outlined text-[22px]">photo_camera</span>
+        <form onSubmit={handleSubmit}>
+          {/* Avatar Identity Box */}
+          <div className="p-6 border-b border-[#E5E2DA] bg-[#F5F3EE]">
+            <div className="border border-[#E5E2DA] bg-white p-6 flex flex-col items-center text-center">
+              {/* Avatar square */}
+              <div
+                className="relative w-20 h-20 bg-[#1B1C19] flex items-center justify-center text-white font-mono text-2xl font-bold cursor-pointer group mb-3"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {preview ? (
+                  <img src={preview} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{name.charAt(0).toUpperCase() || "U"}</span>
+                )}
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#E64B35]" />
+              </div>
+
+              <div className="flex items-center gap-2 mb-1">
+                <span className="label-mono text-[11px] text-[#1B1C19]">AVATAR IDENTITY</span>
+                <span className="border border-[#E5E2DA] px-1.5 py-0.5 label-mono text-[9px] text-[#737373]">
+                  MAX 2.4MB
+                </span>
+              </div>
+              <p className="font-sans text-[12px] text-[#737373] leading-4 max-w-xs mb-4">
+                High-contrast square glyph or photo representation for audit logs and real-time generation turns.
+              </p>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="btn-ghost py-1.5 px-3 text-[10px]"
+                >
+                  <span className="material-symbols-outlined text-[13px]">upload</span>
+                  <span>UPLOAD NEW IMAGE</span>
+                </button>
+                {preview && (
+                  <button
+                    type="button"
+                    onClick={() => { setFile(null); setPreview(null); }}
+                    className="btn-ghost py-1.5 px-3 text-[10px] text-[#E64B35]"
+                  >
+                    REMOVE
+                  </button>
+                )}
               </div>
             </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="text-xs text-[#818cf8] hover:underline"
-            >
-              Change profile picture
+          </div>
+
+          {/* Form Fields */}
+          <div className="p-6 space-y-5 bg-[#F5F3EE] border-b border-[#E5E2DA]">
+            {/* Display Name */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="accent-sq w-[6px] h-[6px]" />
+                  <label className="label-mono text-[11px] text-[#1B1C19]">DISPLAY NAME</label>
+                </div>
+                
+              </div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={30}
+                required
+                className="input-field"
+              />
+              <p className="font-sans text-[11px] text-[#737373] mt-1">
+                Public identifier displayed across active workspace conversations.
+              </p>
+            </div>
+
+            {/* Username */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="accent-sq w-[6px] h-[6px]" />
+                  <label className="label-mono text-[11px] text-[#1B1C19]">USERNAME</label>
+                </div>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 label-mono text-[#737373] text-[12px]">@</span>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="input-field pl-8 font-mono"
+                />
+              </div>
+              {/* <div className="flex items-center justify-between mt-1">
+                <span className="label-mono text-[10px] text-[#737373]">
+                  URL: opentalk.dev/@{username}
+                </span>
+                <span className="label-mono text-[10px] text-[#737373]">
+                  VALID // RESERVED
+                </span>
+              </div> */}
+            </div>
+
+            {/* Status box */}
+            {/* <div className="border border-[#E5E2DA] bg-white p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="accent-sq w-[6px] h-[6px]" />
+                <span className="label-mono text-[10px] text-[#1B1C19]">ACCOUNT STATUS</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="border border-[#E5E2DA] px-2 py-0.5 label-mono text-[10px] text-[#1B1C19]">
+                  ONLINE • DEVELOPER TIER
+                </span>
+                <span className="label-mono text-[10px] text-[#737373]">RATE: UNLIMITED</span>
+              </div>
+            </div> */}
+          </div>
+
+          {/* Modal Footer Actions */}
+          <div className="p-4 bg-white flex items-center justify-between">
+            <button type="button" onClick={onClose} className="btn-ghost">
+              CANCEL
             </button>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#94a3b8] mb-1.5">Display Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#0b0f17] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#6366f1]"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#94a3b8] mb-1.5">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-[#0b0f17] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#6366f1]"
-              required
-            />
-          </div>
-
-          <div className="pt-2 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-sm text-[#94a3b8] hover:text-white hover:bg-white/5 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white font-medium text-sm shadow-md glow-indigo hover:brightness-110 active:scale-95 transition-all disabled:opacity-50"
-            >
-              {loading ? "Saving..." : "Save Changes"}
+            <button type="submit" disabled={loading} className="btn-primary gap-2">
+              <span className="accent-sq w-[5px] h-[5px] bg-[#E64B35]" />
+              <span>{loading ? "SAVING..." : "SAVE CHANGES"}</span>
             </button>
           </div>
         </form>

@@ -23,190 +23,161 @@ export default function Sidebar({ onOpenProfile, onOpenNewChat }: SidebarProps) 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
-  const totalUnreadCount = useMemo(() => {
-    return conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
-  }, [conversations]);
+  const totalUnread = useMemo(
+    () => conversations.reduce((a, c) => a + (c.unreadCount || 0), 0),
+    [conversations]
+  );
 
-  const filteredConversations = useMemo(() => {
+  const filtered = useMemo(() => {
     return conversations.filter((c) => {
-      if (filter === "unread" && (!c.unreadCount || c.unreadCount === 0)) {
-        return false;
-      }
+      if (filter === "unread" && !c.unreadCount) return false;
       if (search.trim()) {
         const q = search.toLowerCase();
-        const otherName = c.otherUser?.name?.toLowerCase() || "";
-        const otherUsername = c.otherUser?.username?.toLowerCase() || "";
-        const lastText = c.lastMessage?.text?.toLowerCase() || "";
-        return otherName.includes(q) || otherUsername.includes(q) || lastText.includes(q);
+        return (
+          c.otherUser?.name?.toLowerCase().includes(q) ||
+          c.otherUser?.username?.toLowerCase().includes(q) ||
+          c.lastMessage?.text?.toLowerCase().includes(q)
+        );
       }
       return true;
     });
   }, [conversations, filter, search]);
 
-  const formatTime = (dateStr?: string) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
+  const fmtTime = (d?: string) => {
+    if (!d) return "";
+    const date = new Date(d);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) {
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    }
+    const diff = Math.floor((now.getTime() - date.getTime()) / 60000);
+    if (diff < 1) return "NOW";
+    if (diff < 60) return `${diff}M`;
+    if (diff < 1440) return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     return date.toLocaleDateString([], { month: "short", day: "numeric" });
   };
 
   return (
-    <aside className="h-screen w-[360px] flex-shrink-0 flex flex-col bg-[#181c24] border-r border-white/5 relative z-20">
-      {/* Current User Profile Header */}
-      <div className="p-4 border-b border-white/5 bg-[#181c24]/90 backdrop-blur-md">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt={user.name}
-                  className="w-11 h-11 rounded-full object-cover ring-2 ring-white/10"
-                />
-              ) : (
-                <div className="w-11 h-11 rounded-full bg-[#1e293b] flex items-center justify-center text-white font-bold ring-2 ring-white/10">
-                  {user?.name.charAt(0).toUpperCase() || "U"}
-                </div>
-              )}
-              {/* Online indicator */}
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#10b981] rounded-full border-2 border-[#181c24] glow-emerald" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-sm text-[#dfe2ee] leading-none">
-                  {user?.name}
-                </span>
-                <span
-                  className="material-symbols-outlined text-[15px] text-[#10b981]"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  verified
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[11px] text-[#908fa0] font-mono">@{user?.username}</span>
-                <span className="text-[#464554] text-[10px]">•</span>
-                <span className="text-[11px] text-[#4edea3] font-medium">Online</span>
-              </div>
-            </div>
-          </div>
+    <aside className="h-screen w-[320px] flex-shrink-0 flex flex-col bg-[#FBFAF4] border-r border-[#E5E2DA]">
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={onOpenProfile}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#908fa0] hover:text-white hover:bg-white/5 transition-colors"
-              title="Edit Profile"
-            >
-              <span className="material-symbols-outlined text-[19px]">settings</span>
-            </button>
-            <button
-              onClick={logout}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#908fa0] hover:text-red-400 hover:bg-white/5 transition-colors"
-              title="Sign Out"
-            >
-              <span className="material-symbols-outlined text-[19px]">logout</span>
-            </button>
+      {/* ── Header ── */}
+      <div className="shrink-0 px-4 h-14 border-b border-[#E5E2DA] flex items-center justify-between bg-white">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-7 h-7 bg-[#1B1C19] flex items-center justify-center text-white font-mono text-[11px] font-bold shrink-0"
+            title={user?.name}
+          >
+            {user?.name?.charAt(0).toUpperCase() || "U"}
           </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-sans text-[13px] font-medium text-[#1B1C19] leading-none">
+                {user?.name}
+              </span>
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-[#22C55E]" />
+                <span className="label-mono text-[9px] text-[#737373]">ONLINE</span>
+              </div>
+            </div>
+            <span className="font-mono text-[10px] text-[#737373]">@{user?.username}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onOpenProfile}
+            className="p-1.5 text-[#737373] hover:text-[#1B1C19] hover:bg-[#EAE8E3] transition-colors"
+            title="Settings"
+          >
+            <span className="material-symbols-outlined text-[17px]">settings</span>
+          </button>
+          <button
+            onClick={logout}
+            className="p-1.5 text-[#737373] hover:text-[#E64B35] hover:bg-[#EAE8E3] transition-colors"
+            title="Sign out"
+          >
+            <span className="material-symbols-outlined text-[17px]">logout</span>
+          </button>
         </div>
       </div>
 
-      {/* Quick Search Bar */}
-      <div className="px-4 pt-3 pb-1">
-        <div className="relative flex items-center">
-          <span className="material-symbols-outlined absolute left-3 text-[#908fa0] text-[18px] pointer-events-none">
+      {/* ── Search ── */}
+      <div className="shrink-0 px-3 py-3 border-b border-[#E5E2DA]">
+        <div className="relative">
+          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[#737373] text-[15px]">
             search
           </span>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search messages or people (⌘K)..."
-            className="w-full bg-[#262a33]/80 text-[#dfe2ee] placeholder:text-[#908fa0] text-xs pl-9 pr-8 py-2 rounded-xl border border-white/5 focus:outline-none focus:border-[#8083ff] focus:ring-1 focus:ring-[#8083ff]/30 transition-all"
+            placeholder="Search threads..."
+            className="w-full bg-white border border-[#E5E2DA] text-[#1B1C19] placeholder:text-[#737373] font-mono text-[11px] pl-8 pr-7 py-2 outline-none focus:border-[#1B1C19] transition-colors"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-2.5 text-[#908fa0] hover:text-white text-xs"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#1B1C19]"
             >
-              <span className="material-symbols-outlined text-[16px]">cancel</span>
+              <span className="material-symbols-outlined text-[14px]">close</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Tabs & New Chat Trigger */}
-      <div className="px-4 py-2 flex flex-col gap-2">
-        <div className="flex items-center gap-1 bg-[#0a0e16]/80 p-1 rounded-xl border border-white/5">
+      {/* ── Filter tabs + New Chat ── */}
+      <div className="shrink-0 px-3 py-2.5 border-b border-[#E5E2DA] flex items-center justify-between gap-2">
+        <div className="flex items-center gap-4 border-b border-transparent">
           <button
             onClick={() => setFilter("all")}
-            className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium transition-all ${
-              filter === "all"
-                ? "bg-[#262a33] text-[#c0c1ff] shadow-sm"
-                : "text-[#908fa0] hover:text-white"
+            className={`label-mono text-[11px] pb-1 relative transition-colors ${
+              filter === "all" ? "text-[#1B1C19]" : "text-[#737373] hover:text-[#1B1C19]"
             }`}
           >
-            All Chats
+            ALL
+            {filter === "all" && <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#E64B35]" />}
           </button>
           <button
             onClick={() => setFilter("unread")}
-            className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1 ${
-              filter === "unread"
-                ? "bg-[#262a33] text-[#c0c1ff] shadow-sm"
-                : "text-[#908fa0] hover:text-white"
+            className={`label-mono text-[11px] pb-1 relative transition-colors flex items-center gap-1 ${
+              filter === "unread" ? "text-[#1B1C19]" : "text-[#737373] hover:text-[#1B1C19]"
             }`}
           >
-            <span>Unread</span>
-            {totalUnreadCount > 0 && (
-              <span className="bg-[#8083ff]/30 text-[#c0c1ff] px-1.5 py-0.2 rounded-full text-[10px] font-bold">
-                {totalUnreadCount}
+            UNREAD
+            {totalUnread > 0 && (
+              <span className="bg-[#1B1C19] text-white font-mono text-[9px] px-1 py-0.5 leading-none">
+                {totalUnread}
               </span>
             )}
+            {filter === "unread" && <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#E64B35]" />}
           </button>
         </div>
-
-        {/* Glowing + New Chat Button */}
         <button
           onClick={onOpenNewChat}
-          className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#8083ff] via-[#571bc1] to-[#494bd6] text-white text-xs font-semibold flex items-center justify-center gap-2 glow-indigo hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+          className="btn-primary py-1.5 px-3 text-[10px] flex items-center gap-1.5 h-auto"
         >
-          <span className="material-symbols-outlined text-[19px]">add_circle</span>
-          <span>New Chat</span>
+          <span className="material-symbols-outlined text-[14px]">add</span>
+          <span>NEW</span>
         </button>
       </div>
 
-      {/* Scrollable Conversation List */}
-      <div className="flex-1 overflow-y-auto px-2 py-1 space-y-1">
+      {/* ── Conversation list ── */}
+      <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
         {loadingConversations ? (
-          <div className="py-12 flex flex-col items-center justify-center text-[#908fa0] gap-2">
-            <span className="w-5 h-5 border-2 border-white/30 border-t-[#8083ff] rounded-full animate-spin" />
-            <span className="text-xs">Loading conversations...</span>
+          <div className="py-12 flex flex-col items-center gap-3 text-[#737373]">
+            <span className="w-4 h-4 border border-[#737373] border-t-[#1B1C19] rounded-full animate-spin" />
+            <span className="label-mono text-[10px]">LOADING THREADS...</span>
           </div>
-        ) : filteredConversations.length === 0 ? (
-          <div className="py-12 text-center text-[#908fa0] text-xs px-4">
-            {search
-              ? "No conversations match your search."
-              : "No active conversations yet. Click 'New Chat' to start messaging!"}
+        ) : filtered.length === 0 ? (
+          <div className="py-10 px-4 text-center">
+            <span className="label-mono text-[10px] text-[#737373]">
+              {search ? "NO RESULTS" : "NO ACTIVE CONVERSATIONS"}
+            </span>
           </div>
         ) : (
-          filteredConversations.map((conv) => {
+          filtered.map((conv) => {
             const isActive = activeConversation?._id === conv._id;
             const other = conv.otherUser;
             const isOnline = other ? onlineUsers.has(other._id) || other.isOnline : false;
             const unread = conv.unreadCount || 0;
             const lastMsg = conv.lastMessage;
-
-            // Check if last message was sent by current user
-            const isLastSentByMe =
+            const isLastMine =
               lastMsg &&
               user &&
               (typeof lastMsg.sender === "object"
@@ -217,75 +188,65 @@ export default function Sidebar({ onOpenProfile, onOpenNewChat }: SidebarProps) 
               <div
                 key={conv._id}
                 onClick={() => selectConversation(conv)}
-                className={`relative group mx-1 p-2.5 rounded-xl transition-all cursor-pointer border ${
+                className={`px-3 py-3 cursor-pointer border-b border-[#E5E2DA] transition-colors ${
                   isActive
-                    ? "bg-[#262a33]/90 border-[#8083ff]/40 glow-indigo"
-                    : "hover:bg-[#1c2028]/80 border-transparent hover:border-white/5"
+                    ? "bg-white border-l-2 border-l-[#E64B35]"
+                    : "hover:bg-[#EAE8E3] border-l-2 border-l-transparent"
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="relative flex-shrink-0">
+                  {/* Avatar */}
+                  <div className="relative shrink-0">
                     {other?.profilePicture ? (
                       <img
                         src={other.profilePicture}
                         alt={other.name}
-                        className={`w-11 h-11 rounded-full object-cover ring-2 ${
-                          isActive ? "ring-[#8083ff]" : "ring-white/10"
-                        }`}
+                        className="w-9 h-9 object-cover"
                       />
                     ) : (
-                      <div className="w-11 h-11 rounded-full bg-[#1c2028] flex items-center justify-center text-white font-semibold text-sm ring-1 ring-white/10">
+                      <div
+                        className={`w-9 h-9 flex items-center justify-center font-mono text-[12px] font-bold ${
+                          isActive ? "bg-[#1B1C19] text-white" : "bg-[#E5E2DA] text-[#1B1C19]"
+                        }`}
+                      >
                         {other?.name?.charAt(0).toUpperCase() || "?"}
                       </div>
                     )}
+                    {/* Online indicator */}
                     <span
-                      className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#181c24] ${
-                        isOnline ? "bg-[#10b981] glow-emerald" : "bg-[#464554]"
+                      className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 border border-[#FBFAF4] ${
+                        isOnline ? "bg-[#22C55E]" : "bg-[#737373]"
                       }`}
                     />
                   </div>
 
+                  {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm text-[#dfe2ee] truncate">
-                        {other?.name || "Unknown User"}
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className={`font-sans text-[13px] font-medium truncate ${
+                        isActive ? "text-[#1B1C19]" : "text-[#1B1C19]"
+                      }`}>
+                        {other?.name || "Unknown"}
                       </span>
-                      <span
-                        className={`text-[11px] ${
-                          isActive ? "text-[#c0c1ff] font-medium" : "text-[#908fa0]"
-                        }`}
-                      >
-                        {formatTime(conv.updatedAt || conv.createdAt)}
+                      <span className="font-mono text-[10px] text-[#737373] shrink-0 ml-2">
+                        {fmtTime(conv.updatedAt || conv.createdAt)}
                       </span>
                     </div>
-
-                    <div className="text-[11px] text-[#908fa0] mb-0.5 font-mono">
+                    <div className="font-mono text-[10px] text-[#737373] mb-1">
                       @{other?.username || "user"}
                     </div>
-
-                    <p className="text-xs text-[#c7c4d7] truncate font-normal flex items-center gap-1">
-                      {isLastSentByMe && (
-                        <span className="text-[#8083ff] font-medium text-[11px]">✓✓</span>
-                      )}
-                      {lastMsg?.mediaType === "image" && (
-                        <span className="material-symbols-outlined text-[14px] text-[#8083ff]">
-                          image
-                        </span>
-                      )}
-                      {lastMsg?.mediaType === "file" && (
-                        <span className="material-symbols-outlined text-[14px] text-[#8083ff]">
-                          attach_file
-                        </span>
-                      )}
-                      <span>
-                        {lastMsg?.text || (lastMsg?.mediaUrl ? "Attachment" : "Started conversation")}
-                      </span>
+                    <p className="font-sans text-[12px] text-[#737373] truncate flex items-center gap-1">
+                      {isLastMine && <span className="text-[#1B1C19] font-medium text-[11px]">You:</span>}
+                      {lastMsg?.mediaType === "image" && <span className="font-mono text-[10px]">[IMG]</span>}
+                      {lastMsg?.mediaType === "file"  && <span className="font-mono text-[10px]">[FILE]</span>}
+                      <span>{lastMsg?.text || (lastMsg?.mediaUrl ? "Attachment" : "Thread opened")}</span>
                     </p>
                   </div>
 
+                  {/* Unread badge */}
                   {unread > 0 && (
-                    <div className="self-center">
-                      <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-[#8083ff] text-[#0d0096] text-[11px] font-bold shadow-md">
+                    <div className="shrink-0 self-start mt-1">
+                      <span className="bg-[#E64B35] text-white font-mono text-[10px] font-bold px-1.5 py-0.5 leading-none">
                         {unread}
                       </span>
                     </div>
@@ -297,17 +258,24 @@ export default function Sidebar({ onOpenProfile, onOpenNewChat }: SidebarProps) 
         )}
       </div>
 
-      {/* Sidebar Footer */}
-      <div className="p-3 border-t border-white/5 bg-[#181c24] flex items-center justify-between text-[#908fa0] text-xs">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onOpenProfile}
-            className="flex items-center gap-1.5 hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-[16px]">manage_accounts</span>
-            <span>Settings</span>
-          </button>
-        </div>
+      {/* ── Footer ── */}
+      <div className="shrink-0 p-3 border-t border-[#E5E2DA] bg-white flex items-center justify-between gap-2">
+        <button
+          onClick={onOpenProfile}
+          className="flex-1 py-1.5 px-2.5 border border-[#E5E2DA] hover:bg-[#F5F3EE] flex items-center justify-center gap-1.5 text-[#1B1C19] transition-colors"
+          title="Profile Settings"
+        >
+          <span className="material-symbols-outlined text-[15px]">settings</span>
+          <span className="label-mono text-[10px]">SETTINGS</span>
+        </button>
+        <button
+          onClick={logout}
+          className="flex-1 py-1.5 px-2.5 border border-[#E5E2DA] hover:bg-[#FFF5F5] hover:border-[#E64B35]/40 flex items-center justify-center gap-1.5 text-[#737373] hover:text-[#E64B35] transition-colors"
+          title="Sign Out"
+        >
+          <span className="material-symbols-outlined text-[15px]">logout</span>
+          <span className="label-mono text-[10px]">SIGN OUT</span>
+        </button>
       </div>
     </aside>
   );

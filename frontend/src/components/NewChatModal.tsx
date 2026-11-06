@@ -18,16 +18,13 @@ export default function NewChatModal({ onClose }: { onClose: () => void }) {
       setLoading(true);
       try {
         const data = await getUsersApi(search);
-        if (active) {
-          setUsers(data.users || []);
-        }
+        if (active) setUsers(data.users || []);
       } catch (err) {
         console.error("Failed to search users:", err);
       } finally {
         if (active) setLoading(false);
       }
     };
-
     const delay = setTimeout(fetchUsers, 250);
     return () => {
       active = false;
@@ -35,10 +32,10 @@ export default function NewChatModal({ onClose }: { onClose: () => void }) {
     };
   }, [search]);
 
-  const handleSelectUser = async (user: IUser) => {
+  const handleSelectUser = async (u: IUser) => {
     try {
-      setStartingChatUserId(user._id);
-      await startConversationWithUser(user);
+      setStartingChatUserId(u._id);
+      await startConversationWithUser(u);
       onClose();
     } catch (err) {
       console.error("Failed to start conversation:", err);
@@ -48,46 +45,54 @@ export default function NewChatModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-      <div className="relative w-full max-w-lg rounded-2xl bg-[#0f172a] border border-white/10 p-6 shadow-2xl flex flex-col max-h-[80vh]">
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#6366f1] text-[24px]">person_add</span>
-            <h3 className="text-lg font-bold text-white">Start New Conversation</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-lg bg-[#FBFAF4] border border-[#E5E2DA] flex flex-col max-h-[80vh]">
+
+        {/* Modal Top Bar */}
+        <div className="h-12 border-b border-[#E5E2DA] px-5 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="font-serif text-[18px] text-[#1B1C19]">Initiate Thread</span>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#94a3b8] hover:text-white hover:bg-white/5 transition-colors"
+            className="text-[#737373] hover:text-[#1B1C19] p-1 transition-colors"
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
-        {/* Search input */}
-        <div className="relative mb-4">
-          <span className="material-symbols-outlined absolute left-3.5 top-3 text-[#64748b] text-[18px]">
-            search
-          </span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, @username, or email..."
-            className="w-full bg-[#0b0f17] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#64748b] focus:outline-none focus:border-[#6366f1] focus:ring-1 focus:ring-[#6366f1]"
-            autoFocus
-          />
+        {/* Search */}
+        <div className="p-4 border-b border-[#E5E2DA] bg-[#F5F3EE] shrink-0">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5">
+            </div>
+            <span className="label-mono text-[10px] text-[#737373]">NAME / USERNAME / EMAIL</span>
+          </div>
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#737373] text-[16px]">
+              search
+            </span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Query peer identity..."
+              autoFocus
+              className="input-field pl-9 font-mono text-[13px]"
+            />
+          </div>
         </div>
 
-        {/* Users list */}
-        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+        {/* User list */}
+        <div className="flex-1 overflow-y-auto divide-y divide-[#E5E2DA] bg-[#F5F3EE]" style={{ scrollbarWidth: "thin" }}>
           {loading ? (
-            <div className="py-12 flex flex-col items-center justify-center text-[#94a3b8] gap-2">
-              <span className="w-6 h-6 border-2 border-white/30 border-t-[#6366f1] rounded-full animate-spin" />
-              <span className="text-xs">Finding people...</span>
+            <div className="py-12 flex flex-col items-center gap-3 text-[#737373]">
+              <span className="w-4 h-4 border border-[#737373] border-t-[#1B1C19] rounded-full animate-spin" />
+              <span className="label-mono text-[10px]">SCANNING DIRECTORY...</span>
             </div>
           ) : users.length === 0 ? (
-            <div className="py-12 text-center text-[#64748b] text-sm">
-              No users found matching your search.
+            <div className="py-12 text-center text-[#737373]">
+              <span className="label-mono text-[11px]">NO PEERS FOUND</span>
             </div>
           ) : (
             users.map((u) => {
@@ -98,50 +103,48 @@ export default function NewChatModal({ onClose }: { onClose: () => void }) {
                 <div
                   key={u._id}
                   onClick={() => !isStarting && handleSelectUser(u)}
-                  className="flex items-center justify-between p-3 rounded-xl bg-[#1e293b]/50 hover:bg-[#1e293b] border border-white/5 hover:border-[#6366f1]/40 transition-all cursor-pointer group"
+                  className="px-5 py-3.5 bg-white hover:bg-[#F5F3EE] flex items-center justify-between cursor-pointer transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="relative flex-shrink-0">
+                    {/* Avatar */}
+                    <div className="relative shrink-0">
                       {u.profilePicture ? (
-                        <img
-                          src={u.profilePicture}
-                          alt={u.name}
-                          className="w-11 h-11 rounded-full object-cover ring-1 ring-white/10"
-                        />
+                        <img src={u.profilePicture} alt={u.name} className="w-8 h-8 object-cover" />
                       ) : (
-                        <div className="w-11 h-11 rounded-full bg-[#31353e] flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-8 h-8 bg-[#1B1C19] text-white flex items-center justify-center font-mono text-[11px] font-bold">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                       )}
                       <span
-                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0f172a] ${
-                          isOnline ? "bg-[#10b981] glow-emerald" : "bg-[#64748b]"
+                        className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 border border-white ${
+                          isOnline ? "bg-[#22C55E]" : "bg-[#737373]"
                         }`}
                       />
                     </div>
+
                     <div>
-                      <div className="font-semibold text-sm text-[#f8fafc] group-hover:text-white flex items-center gap-1.5">
-                        <span>{u.name}</span>
-                        {isOnline && (
-                          <span className="text-[10px] text-[#10b981] font-medium bg-[#10b981]/10 px-1.5 py-0.5 rounded-full">
-                            Online
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2">
+                        <span className="font-sans text-[13px] font-medium text-[#1B1C19]">
+                          {u.name}
+                        </span>
+                        <span className="label-mono text-[9px] text-[#737373]">
+                          {isOnline ? "ONLINE" : "OFFLINE"}
+                        </span>
                       </div>
-                      <div className="text-xs text-[#94a3b8] font-mono">@{u.username}</div>
+                      <span className="font-mono text-[10px] text-[#737373]">@{u.username}</span>
                     </div>
                   </div>
 
                   <button
                     disabled={isStarting}
-                    className="px-3.5 py-1.5 rounded-lg bg-[#6366f1]/10 text-[#c0c1ff] group-hover:bg-[#6366f1] group-hover:text-white font-medium text-xs border border-[#6366f1]/30 transition-all flex items-center gap-1"
+                    className="btn-ghost py-1 px-3 text-[10px] flex items-center gap-1.5"
                   >
                     {isStarting ? (
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="w-3 h-3 border border-[#1B1C19]/30 border-t-[#1B1C19] rounded-full animate-spin" />
                     ) : (
                       <>
-                        <span>Chat</span>
-                        <span className="material-symbols-outlined text-[15px]">send</span>
+                        <span>CONNECT</span>
+                        <span className="text-[#E64B35]">→</span>
                       </>
                     )}
                   </button>
@@ -149,6 +152,14 @@ export default function NewChatModal({ onClose }: { onClose: () => void }) {
               );
             })
           )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="p-3 border-t border-[#E5E2DA] bg-white flex items-center justify-between shrink-0">
+          {/* <span className="label-mono text-[10px] text-[#737373]">PEERS RETURNED: {users.length}</span> */}
+          <button type="button" onClick={onClose} className="btn-ghost py-1 px-3 text-[10px]">
+            DISMISS
+          </button>
         </div>
       </div>
     </div>
